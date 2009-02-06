@@ -1,4 +1,11 @@
 namespace :deploy do
+  desc "Ensure an app server is set in config"
+  task :ensure_app_server do
+    if !exists?(:application_server)
+      raise "No app server set! (set :application_server, [:mongrel|:passenger])"
+    end
+  end
+  before :deploy, "deploy:ensure_app_server"
   namespace :web do
     desc "Serve up a custom maintenance page."
     task :disable, :roles => :web do
@@ -20,28 +27,64 @@ namespace :deploy do
     end
   end
   
+  
   namespace :mongrel do
     [ :stop, :start, :restart ].each do |t|
       desc "#{t.to_s.capitalize} the mongrel appserver"
       task t, :roles => :app do
+        puts application_server
+        
         invoke_command "mongrel_rails cluster::#{t.to_s} -C #{mongrel_conf}", :via => run_method
       end
     end
   end
   
-  desc "Custom restart task for mongrel cluster"
+  namespace :passenger do
+    desc "Restarting mod_rails with restart.txt"
+    task :restart, :roles => :app, :except => { :no_release => true } do
+      run "touch #{current_path}/tmp/restart.txt"
+    end
+    
+    [:start, :stop].each do |t|
+      desc "#{t} task is a no-op with mod_rails"
+      task t, :roles => :app do ; end
+    end
+  end
+  
+  
+  desc "Restart the app server"
   task :restart, :roles => :app, :except => { :no_release => true } do
-    deploy.mongrel.restart
+    case application_server
+    when :mongrel
+      deploy.mongrel.restart
+    when :passenger
+      deploy.passenger.restart
+    else
+      raise "#{application_server} is not a valid app server"
+    end
   end
   
-  desc "Custom start task for mongrel cluster"
+  desc "Start the app server"
   task :start, :roles => :app do
-    deploy.mongrel.start
+    case application_server
+    when :mongrel
+      deploy.mongrel.start
+    when :passenger
+    else
+      raise "#{application_server} is not a valid app server"
+    end
+    
   end
   
-  desc "Custom stop task for mongrel cluster"
+  desc "Stop the app server"
   task :stop, :roles => :app do
-    deploy.mongrel.stop
+    case application_server
+    when :mongrel
+      deploy.mongrel.stop
+    when :passenger
+    else
+      raise "#{application_server} is not a valid app server"
+    end
   end
   
 end
