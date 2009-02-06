@@ -1,13 +1,13 @@
 XtremeRecipes
 =============
 
-Introduction goes here.
+Lite praktiskta recept för capistrano för att deploya Rails. 
 
+Highlights:
 
-Example
-=======
+* Alla migrations körs från app servern, så du behöver inte installera en hel railsmiljö på din databas-server
+* Alla filer i shared/config kopieras till appens config-katalog vid deploy
+* Stöd för mongrel och passenger (Använd set :applicaiton_server, [:mongrel|:passenger])
+* Vid användande av mongrel, använder sig av mongrel_rails cluster::(start|stop|restart), med konfigfil som specifieras med variabeln mongrel_conf
 
-Example goes here.
-
-
-Copyright (c) 2008 [name of plugin creator], released under the MIT license
+Released under the MIT license
