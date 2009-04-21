@@ -70,6 +70,7 @@ namespace :deploy do
     when :mongrel
       deploy.mongrel.start
     when :passenger
+      deploy.passenger.start
     else
       raise "#{application_server} is not a valid app server"
     end
@@ -82,6 +83,7 @@ namespace :deploy do
     when :mongrel
       deploy.mongrel.stop
     when :passenger
+      deploy.passenger.stop
     else
       raise "#{application_server} is not a valid app server"
     end
