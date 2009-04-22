@@ -1,4 +1,10 @@
 namespace :deploy do
+  
+  task :create_config_directory do
+    run "#{try_sudo} mkdir #{shared_path}/config"
+  end
+  after 'deploy:setup', 'deploy:create_config_directory'
+  
   desc "Ensure an app server is set in config"
   task :ensure_app_server do
     if !exists?(:application_server)
